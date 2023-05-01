@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Draw a Circle using HTML5 canvas and JavaScript</title>
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+     // Create an audio context
+const audioCtx = new AudioContext();
+
+// Set the duration of the sound in seconds
+const duration = 2;
+
+// Create a buffer to hold the sound data
+const bufferSize = audioCtx.sampleRate * duration;
+const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+
+// Fill the buffer with the sound data
+const fillBuffer = () => {
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    const t = i / audioCtx.sampleRate;
+    const frequency = 200 + (100 * Math.sin(2 * Math.PI * 0.05 * t));
+    data[i] = 0.5 * Math.sin(2 * Math.PI * frequency * t);
+  }
+}
+
+// Create a canvas element
+const canvas = document.createElement('canvas');
+canvas.width = 500;
+canvas.height = 400;
+
+// Get the canvas context and set up the whale animation
+const ctx = canvas.getContext('2d');
+let x = 60;
+let y = 280;
+let vx = 1;
+let vy = -1;
+const animate = () => {
+  // Clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw the whale
+  ctx.fillStyle = '#1E90FF';
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x, y - 40, x + 20, y - 80, x + 80, y - 80);
+  ctx.bezierCurveTo(x + 90, y - 80, x + 130, y - 70, x + 120, y - 40);
+  ctx.bezierCurveTo(x + 110, y - 10, x + 40, y + 10, x + 10, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 100, y - 60, 30, 0, 2 * Math.PI);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 110, y - 65, 10, 0, 2 * Math.PI);
+  ctx.fillStyle = 'black';
+  ctx.fill();
+
+  // Update the whale position
+  x += vx;
+  y += vy;
+  if (x < 0 || x > canvas.width - 200) {
+    vx *= -1;
+  }
+  if (y < 0 || y > canvas.height - 280) {
+    vy *= -1;
+  }
+
+  // Repeat the animation
+  requestAnimationFrame(animate);
+}
+
+// Add an event listener to the canvas to start the sound when the whale is clicked
+canvas.addEventListener('click', () => {
+  fillBuffer();
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(audioCtx.destination);
+  source.start();
+});
+
+// Add the canvas to the DOM and start the animation
+document.body.appendChild(canvas);
+animate();
+
+    </script>
+  </body>
+</html>
+
